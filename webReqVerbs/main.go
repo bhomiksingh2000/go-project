@@ -2,19 +2,23 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
 func main() {
-	GetRequest()
+	// GetRequest()
+	// postRequest()
+	PostFormRequest()
 }
 
 func GetRequest() {
-	const url = "http://localhost:8000/get"
+	const myurl = "http://localhost:8000/get"
 
-	response, err := http.Get(url)
+	response, err := http.Get(myurl)
 
 	if err != nil {
 		panic(err)
@@ -64,4 +68,63 @@ func GetRequest() {
 
 
 	*/
+}
+
+func postRequest() {
+	// for our post API , only JSON data can be used (as per the API contract)
+
+	const myurl = "http://localhost:8000/post"
+
+	requestBody := strings.NewReader(`
+
+		{
+
+			"coursename":"Let's go with golang",
+
+			"price": 0,
+
+			"platform":"learnCodeOnline.in"
+
+		}
+
+	`)
+
+	response, err := http.Post(myurl, "application/json", requestBody)
+
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
+
+	content, _ := io.ReadAll(response.Body)
+	fmt.Println("content is  ", string(content))
+
+}
+
+/*
+Form Submissions: Contact forms, registration forms,
+and feedback forms typically use POST to send data to the server.
+File Uploads: Uploading images, documents, or other files to a server
+is done via a POST request.
+*/
+func PostFormRequest() {
+	const urlStr = "http://localhost:8000/postform"
+
+	// Create form data
+	data := url.Values{}
+	data.Add("firstname", "hitesh")
+	data.Add("lastname", "choudhary")
+	data.Add("email", "hitesh@go.dev")
+
+	// Send POST request
+	response, err := http.PostForm(urlStr, data)
+
+	if err != nil {
+		panic(err)
+	}
+
+	content, _ := io.ReadAll(response.Body)
+
+	fmt.Println(string(content))
+
 }
